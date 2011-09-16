@@ -1,0 +1,99 @@
+# $Id$
+#
+# Romanian translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  geonode.admin.inc: n/a
+#  geonode.module: n/a
+#  geonode.info: n/a
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2011-09-16 10:24+0300\n"
+"PO-Revision-Date: 2011-09-16 12:09+0200\n"
+"Last-Translator: \n"
+"Language-Team: Romanian <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+
+#: geonode.admin.inc:17
+msgid "Plugin"
+msgstr "Plugin"
+
+#: geonode.admin.inc:18
+msgid "Select map plugin to use."
+msgstr "Selectaţi harta plugin-ului"
+
+#: geonode.admin.inc:30
+msgid "Content types"
+msgstr "Tipuri de conţinut"
+
+#: geonode.admin.inc:33
+msgid "Select content types to use the node geo location."
+msgstr "Selectaţi tipurile de conţinut pentru nodurile la care pot fi aplicate geo-poziţionarea"
+
+#: geonode.admin.inc:38;70
+#: geonode.module:126
+msgid "Save"
+msgstr "Salvare"
+
+#: geonode.admin.inc:55
+msgid "The configuration options have been saved."
+msgstr "Opţiunile de configurare au fost salvate."
+
+#: geonode.admin.inc:64
+msgid "The plugin cannot be configured. Please visit this <a href=\"!url\">page</a> and select the plugin."
+msgstr "Pluginul nu poate fi configurat. Vă rugăm vizitaţi această <a href=\"!url\">pagină</a> şi selectaţi pluginul"
+
+#: geonode.admin.inc:69
+msgid "The selected plugin has no settings"
+msgstr "Pluginul selectat nu poate fi configurat"
+
+#: geonode.admin.inc:80
+msgid "The configuration options has been saved."
+msgstr "Configurarea a fost salvată"
+
+#: geonode.module:100
+msgid "The node of !type-type cannot be located on the map. Please visit this <a href=\"!url\">page</a> and check settings."
+msgstr "Nodul !type-type nu poate fi localizat pe mapă. Vă rugăm să vizitaţi această <a href=\"!url\">pagină</a> şi să verificaţi setările"
+
+#: geonode.module:140
+msgid "The location has been saved."
+msgstr "Geo-poziţia a fost salvată"
+
+#: geonode.module:19
+msgid "administer node geo location"
+msgstr "Nodul geo-locaţie al administratorului"
+
+#: geonode.module:19
+msgid "administer node geo location settings"
+msgstr "Configurează nodul geo-locaţie al administratorului"
+
+#: geonode.module:40
+msgid "Geo location"
+msgstr "Geo-poziţia"
+
+#: geonode.module:49
+#: geonode.info:0;0
+msgid "Node geo location"
+msgstr "Nod Geo-poziţia"
+
+#: geonode.module:50
+msgid "Configure node geo location settings."
+msgstr "Configurarea noudului geo-locaţie"
+
+#: geonode.module:58
+msgid "General"
+msgstr "General"
+
+#: geonode.module:64
+msgid "Plugin configuration"
+msgstr "Configurarea pluginului"
+
+#: geonode.info:0
+msgid "Allow to link geo location to node"
+msgstr "Permite legătura dintre geo-locaţie şi nod"
+

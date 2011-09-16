@@ -1,0 +1,131 @@
+<?php
+
+/**
+ * Implementation of hook_geonode_plugin().
+ */
+function geonode_google_geonode_plugin() {
+  $args = func_get_args();
+  $op = array_shift($args);
+
+  switch ($op) {
+    case 'name':
+      return 'google';
+      break;
+
+    case 'title':
+      return 'Google Maps';
+      break;
+
+    case 'settings_form':
+      $form = array();
+
+      $form['key'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Google Maps API key'),
+        '#default_value' => variable_get('geonode_google_key', ''),
+      );
+
+      $form['map_type'] = array(
+        '#type' => 'select',
+        '#title' => t('Map type'),
+        '#default_value' => variable_get('geonode_google_map_type', 'G_NORMAL_MAP'),
+        '#options' => array(
+          'G_NORMAL_MAP' => t('Normal'),
+          'G_SATELLITE_MAP' => t('Satellite'),
+          'G_HYBRID_MAP' => t('Hybryd'),
+          'G_PHYSICAL_MAP' => t('Physical'),
+          'G_AERIAL_MAP' => t('Aerial'),
+        ),
+      );
+
+      $form['zoom'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Default zoom'),
+        '#default_value' => variable_get('geonode_google_zoom', 18),
+      );
+
+      $form['imagery'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Enable Aerial Perspective Imagery'),
+        '#default_value' => variable_get('geonode_google_imagery', 0),
+        '#description' => t('The Google Maps API supports special 45° imagery for certain locations. This high-resolution imagery provides perspective views towards each of the cardinal direction (North, South, East, West). Works only with the Aerial map.'),
+      );
+
+      $form['imagery_angle'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Imagery angle (°)'),
+        '#default_value' => variable_get('geonode_google_imagery_angle', 45),
+      );
+
+      return $form;
+      break;
+
+    case 'settings_form_submit':
+      $post = array_shift($args);
+      if ($post) {
+        variable_set('geonode_google_key', $post['key']);
+        variable_set('geonode_google_map_type', $post['map_type']);
+        variable_set('geonode_google_zoom', $post['zoom']);
+        variable_set('geonode_google_imagery', $post['imagery']);
+        variable_set('geonode_google_imagery_angle', $post['imagery_angle']);
+      }
+      break;
+
+    case 'location':
+      $lat = array_shift($args);
+      $lon = array_shift($args);
+      drupal_set_html_head('<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />');
+      drupal_set_html_head('<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>');
+      drupal_set_html_head('<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key='.variable_get('geonode_google_key', '').'" type="text/javascript"></script>');
+      drupal_add_js("function set_location(loc) { $('#edit-lat').val(loc.lat());$('#edit-lon').val(loc.lng()); }
+function initialize() {
+  var map = new GMap2(document.getElementById('google-container'));
+  map.setCenter(new GLatLng({$lat}, {$lon}), ".variable_get('geonode_google_zoom', 10).");
+  map.setMapType(".variable_get('geonode_google_map_type', 'G_NORMAL_MAP').");
+
+  var marker = new GMarker(new GLatLng({$lat}, {$lon}), {draggable:true});
+  //GEvent.addListener(marker, 'click', function() { marker.openInfoWindowHtml('SpravkaWeb.Ru - Справочник Web-языков'); });
+  GEvent.addListener(marker, 'dragend', set_location);
+  map.addOverlay(marker);
+
+  GEvent.addListener(map, 'click', function(overlay,latlng) { marker.setLatLng(latlng);set_location(latlng); });
+
+  ".(variable_get('geonode_google_imagery', 0)?"map.enableRotation();\n  map.changeHeading(".variable_get('geonode_google_imagery_angle', 45).");":'')."
+  map.setUIToDefault();
+}
+$(document).ready(initialize);", 'inline');
+
+      $output = '<div id="google-container" style="height:400px;position:relative;width:100%;margin:0 0 10px 0;"></div>';
+      return $output;
+      break;
+
+    case 'render':
+      $markers = array_shift($args);
+      $lat = $lon = 0;
+      drupal_set_html_head('<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />');
+      drupal_set_html_head('<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>');
+      drupal_set_html_head('<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key='.variable_get('geonode_google_key', '').'" type="text/javascript"></script>');
+      $script = "function initialize() {
+  var map = new GMap2(document.getElementById('google-container'));
+  map.setMapType(".variable_get('geonode_google_map_type', 'G_NORMAL_MAP').");\n\n";
+
+      foreach ($markers as $nid => $marker) {
+        $lat = $marker['latitude'];
+        $lon = $marker['longitude'];
+        $script .= "  var marker_{$nid} = new GMarker(new GLatLng({$marker['latitude']}, {$marker['longitude']}), {});
+  GEvent.addListener(marker_{$nid}, 'click', function() { marker_{$nid}.openInfoWindowHtml('{$marker['title']}'); });
+  map.addOverlay(marker_{$nid});\n\n";
+      }
+
+      $script .= "  map.setCenter(new GLatLng({$lat}, {$lon}), ".variable_get('geonode_google_zoom', 10).");
+  ".(variable_get('geonode_google_imagery', 0)?"map.enableRotation();\n  map.changeHeading(".variable_get('geonode_google_imagery_angle', 45).");":'')."
+  map.setUIToDefault();
+}
+$(document).ready(initialize);";
+      drupal_add_js($script, 'inline');
+
+      $output = '<div id="google-container" style="height:400px;position:relative;width:100%;margin:0 0 10px 0;"></div>';
+      return $output;
+      break;
+  }
+}

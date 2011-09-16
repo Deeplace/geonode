@@ -1,0 +1,4 @@
+name = Node geo location
+description = Allow to link geo location to node
+package = Node geo location
+core = 6.x

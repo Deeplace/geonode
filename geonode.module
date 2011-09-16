@@ -1,0 +1,141 @@
+<?php
+
+/**
+ * Implementation of hook_init().
+ */
+function geonode_init() {
+  // Use the administrative theme if the user is looking at a page in the admin/* path.
+  if (variable_get('node_admin_theme', '0') && arg(0) == 'node' && arg(2) == 'geo') {
+    global $custom_theme;
+    $custom_theme = variable_get('admin_theme', '0');
+    drupal_add_css(drupal_get_path('module', 'system') . '/admin.css', 'module');
+  }
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function geonode_perm() {
+  return array('administer node geo location', 'administer node geo location settings');
+}
+
+/**
+ * Determine whether the current user may perform the geo location on the
+ * specified node.
+ */
+function geonode_access($node) {
+  $types = explode('|', variable_get('geonode_node_types', 'page'));
+  if (!in_array($node->type, $types)) return false;
+  if (!user_access('administer node geo location')) return false;
+  return true;
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function geonode_menu() {
+  $items = array();
+
+  $items['node/%node/geo'] = array(
+    'title' => 'Geo location',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('geonode_form', 1),
+    'access callback' => 'geonode_access',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK
+  );
+
+  $items['admin/settings/geonode'] = array(
+    'title' => 'Node geo location',
+    'description' => 'Configure node geo location settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('geonode_admin_settings'),
+    'access arguments' => array('administer node geo location settings'),
+    'file' => 'geonode.admin.inc',
+  );
+
+  $items['admin/settings/geonode/general'] = array(
+    'title' => 'General',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -1,
+  );
+
+  $items['admin/settings/geonode/plugin'] = array(
+    'title' => 'Plugin configuration',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('geonode_admin_plugin_settings'),
+    'access arguments' => array('administer node geo location settings'),
+    'file' => 'geonode.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  return $items;
+}
+
+/*
+ * Implementation of hook_nodeapi().
+ */
+function geonode_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+  switch ($op) {
+    case 'load':
+      $location = db_fetch_array(db_query("SELECT lat, lon FROM {node_location} WHERE nid = %d", $node->nid));
+      if (!$location) $location = array('lat' => '47.031768087892', 'lon' => '28.848643898973');
+      return $location;
+      break;
+
+    case 'delete':
+      db_query("DELETE FROM {node_location} WHERE nid = %d", $node->nid);
+      break;
+  }
+}
+
+/**
+ * Menu callback: administer node geo location form
+ */
+function geonode_form(&$form_state, $node) {
+  $form = array();
+
+  $types = explode('|', variable_get('geonode_node_types', 'page'));
+  if (!in_array($node->type, $types)) {
+    $form['error'] = array('#value' => t('The node of !type-type cannot be located on the map. Please visit this <a href="!url">page</a> and check settings.', array('!type' => $node->type, '!url' => url('admin/settings/geonode'))));
+    return $form;
+  }
+
+  $plugin = variable_get('geonode_plugin', '');
+  $map = module_invoke("geonode_{$plugin}", 'geonode_plugin', 'location', $node->lat, $node->lon);
+
+  $form['map'] = array('#value' => $map);
+
+  $form['lat'] = array(
+    '#type' => 'hidden',
+    '#default_value' => $node->lat
+  );
+
+  $form['lon'] = array(
+    '#type' => 'hidden',
+    '#default_value' => $node->lon
+  );
+
+  $form['nid'] = array(
+    '#type' => 'hidden',
+    '#default_value' => $node->nid
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+
+  return $form;
+}
+
+/**
+ * Implementation of hook_submit().
+ */
+function geonode_form_submit(&$form, &$form_state) {
+  $values = $form_state['values'];
+  if (db_result(db_query("SELECT COUNT(nid) FROM {node_location} WHERE nid=%d", $values['nid']))) $script = "UPDATE {node_location} SET lat='%s', lon='%s' WHERE nid=%d";
+  else $script = "INSERT INTO {node_location} SET lat='%s', lon='%s', nid=%d";
+  db_query($script, $values['lat'], $values['lon'], $values['nid']);
+  drupal_set_message(t('The location has been saved.'));
+}

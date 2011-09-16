@@ -1,0 +1,98 @@
+<?php
+
+/**
+ * Implementation of hook_geonode_plugin().
+ */
+function geonode_cloudmade_geonode_plugin() {
+  $args = func_get_args();
+  $op = array_shift($args);
+
+  switch ($op) {
+    case 'name':
+      return 'cloudmade';
+      break;
+
+    case 'title':
+      return 'CloudMade Maps';
+      break;
+
+    case 'settings_form':
+      $form = array();
+
+      $form['map_control'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Show Map control'),
+        '#default_value' => variable_get('geonode_cloudmade_map_control', 1),
+      );
+
+      $form['scale_control'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Show Scale'),
+        '#default_value' => variable_get('geonode_cloudmade_scale_control', 0),
+      );
+
+      $form['overview_control'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Show Overview map'),
+        '#default_value' => variable_get('geonode_cloudmade_overview_control', 1),
+      );
+
+      return $form;
+      break;
+
+    case 'settings_form_submit':
+      $post = array_shift($args);
+      if ($post) {
+        variable_set('geonode_cloudmade_map_control', $post['map_control']);
+        variable_set('geonode_cloudmade_scale_control', $post['scale_control']);
+        variable_set('geonode_cloudmade_overview_control', $post['overview_control']);
+      }
+      break;
+
+    case 'location':
+      $lat = array_shift($args);
+      $lon = array_shift($args);
+      drupal_set_html_head('<script type="text/javascript" src="http://tile.cloudmade.com/wml/0.4/web-maps-lite.js"></script>');
+      $script = "function initialize() {
+  var cloudmade = new CM.Tiles.CloudMade.Web({key: '8ee2a50541944fb9bcedded5165f09d9'});
+  var map = new CM.Map('cloudmap-container', cloudmade);
+
+  var cm_location = new CM.LatLng({$lat}, {$lon});
+  var cm_marker = new CM.Marker(cm_location, {draggable:true});
+  map.setCenter(cm_location, 10);
+  map.addOverlay(cm_marker);
+  function set_location(loc) {cm_marker.setLatLng(loc);$('#edit-lat').val(loc.lat());$('#edit-lon').val(loc.lng());}
+  CM.Event.addListener(map, 'click', set_location);\n\n";
+      if (variable_get('geonode_cloudmade_map_control', 1)) $script .= "  map.addControl(new CM.LargeMapControl());\n";
+      if (variable_get('geonode_cloudmade_scale_control', 0)) $script .= "  map.addControl(new CM.ScaleControl());\n";
+      if (variable_get('geonode_cloudmade_overview_control', 1)) $script .= "  map.addControl(new CM.OverviewMapControl());\n";
+      $script .= "}\n$(document).ready(initialize);";
+      drupal_add_js($script, 'inline');
+
+      $output = '<div id="cloudmap-container" style="height:400px;position:relative;width:100%;margin:0 0 10px 0;"></div>';
+      return $output;
+      break;
+
+    case 'render':
+      $markers = array_shift($args);
+      drupal_set_html_head('<script type="text/javascript" src="http://tile.cloudmade.com/wml/0.4/web-maps-lite.js"></script>');
+      $script = "function initialize() {
+  var cloudmade = new CM.Tiles.CloudMade.Web({key: '8ee2a50541944fb9bcedded5165f09d9'});
+  var map = new CM.Map('cloudmap-container', cloudmade);\n\n";
+      foreach ($markers as $nid => $marker) {
+        $script .= "  var cm_location_{$nid} = new CM.LatLng({$marker['latitude']}, {$marker['longitude']});
+  var cm_marker_{$nid} = new CM.Marker(cm_location_{$nid}, {title:'{$marker['title']}'});
+  map.setCenter(cm_location_{$nid}, 10);
+  map.addOverlay(cm_marker_{$nid});\n\n";
+      }
+      if (variable_get('geonode_cloudmade_map_control', 1)) $script .= "  map.addControl(new CM.LargeMapControl());\n";
+      if (variable_get('geonode_cloudmade_scale_control', 0)) $script .= "  map.addControl(new CM.ScaleControl());\n";
+      if (variable_get('geonode_cloudmade_overview_control', 1)) $script .= "  map.addControl(new CM.OverviewMapControl());\n";
+      $script .= "}\n$(document).ready(initialize);";
+      drupal_add_js($script, 'inline');
+
+      $output = '<div id="cloudmap-container" style="height:400px;position:relative;width:100%;margin:0 0 10px 0;"></div>';
+      return $output;
+      break;
+  }
+}

@@ -1,0 +1,123 @@
+<?php
+
+/**
+ * Implementation of hook_geonode_plugin().
+ */
+function geonode_osm_geonode_plugin() {
+  $args = func_get_args();
+  $op = array_shift($args);
+
+  switch ($op) {
+    case 'name':
+      return 'osm';
+      break;
+
+    case 'title':
+      return 'OpenStreetMap';
+      break;
+
+    case 'settings_form':
+      $form = array();
+
+      $form['zoom'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Default zoom'),
+        '#default_value' => variable_get('geonode_osm_zoom', 12),
+      );
+
+      return $form;
+      break;
+
+    case 'settings_form_submit':
+      $post = array_shift($args);
+      if ($post) {
+        variable_set('geonode_osm_zoom', $post['zoom']);
+      }
+      break;
+
+    case 'location':
+      $lat = array_shift($args);
+      $lon = array_shift($args);
+      drupal_set_html_head('<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />');
+      drupal_set_html_head('<meta name="apple-mobile-web-app-capable" content="yes" />');
+      drupal_set_html_head('<link rel="stylesheet" href="http://openlayers.org/dev/theme/default/style.css" type="text/css">');
+      drupal_set_html_head('<link rel="stylesheet" href="http://openlayers.org/dev/theme/default/google.css" type="text/css">');
+      drupal_set_html_head('<script type="text/javascript" src="http://openlayers.org/dev/OpenLayers.js"></script>');
+      drupal_set_html_head('<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>');
+      drupal_add_js("function set_location(loc, map) { loc=loc.transform(map.getProjectionObject(), new OpenLayers.Projection('EPSG:4326'));$('#edit-lat').val(loc.lat);$('#edit-lon').val(loc.lon); }
+function transform_lonlat(lon, lat){return new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection('EPSG:4326'),map.getProjectionObject());}
+function initialize() {
+  map = new OpenLayers.Map({div:'osm-container',allOverlays:true});
+
+  var osm = new OpenLayers.Layer.OSM();
+  var gmap = new OpenLayers.Layer.Google('Google Streets', {visibility: true});
+  var markers = new OpenLayers.Layer.Markers('Markers');
+
+  // note that first layer must be visible
+  map.addLayers([osm, gmap, markers]);
+
+  var size = new OpenLayers.Size(21,25);
+  var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
+  var icon = new OpenLayers.Icon('http://www.openlayers.org/dev/img/marker.png',size,offset);
+  var marker = new OpenLayers.Marker(transform_lonlat({$lon},{$lat}),icon);
+  markers.addMarker(marker);
+
+  map.events.register('click', map, function(e){
+    var opx = map.getLayerPxFromViewPortPx(e.xy);
+    marker.map = map;
+    marker.moveTo(opx);
+    var lonlat = map.getLonLatFromViewPortPx(opx);
+    set_location(lonlat, map);
+  });
+
+  map.addControl(new OpenLayers.Control.LayerSwitcher());
+  map.setCenter(transform_lonlat({$lon}, {$lat}), ".variable_get('geonode_osm_zoom', 11).");
+}
+$(document).ready(initialize);", 'inline');
+
+      $output = '<div id="osm-container" style="height:400px;position:relative;width:100%;margin:0 0 10px 0;"></div>';
+      return $output;
+      break;
+
+    case 'render':
+      $markers = array_shift($args);
+      $lat = $lon = 0;
+      drupal_set_html_head('<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />');
+      drupal_set_html_head('<meta name="apple-mobile-web-app-capable" content="yes" />');
+      drupal_set_html_head('<link rel="stylesheet" href="http://openlayers.org/dev/theme/default/style.css" type="text/css">');
+      drupal_set_html_head('<link rel="stylesheet" href="http://openlayers.org/dev/theme/default/google.css" type="text/css">');
+      drupal_set_html_head('<script type="text/javascript" src="http://openlayers.org/dev/OpenLayers.js"></script>');
+      drupal_set_html_head('<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>');
+      $script = "function transform_lonlat(lon, lat){return new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection('EPSG:4326'),map.getProjectionObject());}
+function initialize() {
+  map = new OpenLayers.Map({div:'osm-container',allOverlays:true});
+
+  var osm = new OpenLayers.Layer.OSM();
+  var gmap = new OpenLayers.Layer.Google('Google Streets', {visibility: true});
+  var markers = new OpenLayers.Layer.Markers('Markers');
+
+  // note that first layer must be visible
+  map.addLayers([osm, gmap, markers]);
+
+  var size = new OpenLayers.Size(21,25);
+  var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
+  var icon = new OpenLayers.Icon('http://www.openlayers.org/dev/img/marker.png',size,offset);\n\n";
+
+      foreach ($markers as $nid => $marker) {
+        $lat = $marker['latitude'];
+        $lon = $marker['longitude'];
+        $script .= "  var marker_{$nid} = new OpenLayers.Marker(transform_lonlat({$lon},{$lat}),icon.clone());
+  markers.addMarker(marker_{$nid});\n\n";
+      }
+
+      $script .= "  map.addControl(new OpenLayers.Control.LayerSwitcher());
+  map.setCenter(transform_lonlat({$lon}, {$lat}), ".variable_get('geonode_osm_zoom', 11).");
+}
+$(document).ready(initialize);";
+      drupal_add_js($script, 'inline');
+
+      $output = '<div id="osm-container" style="height:400px;position:relative;width:100%;margin:0 0 10px 0;"></div>';
+      return $output;
+      break;
+  }
+}

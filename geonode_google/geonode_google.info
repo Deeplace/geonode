@@ -1,0 +1,5 @@
+name = Google plugin
+description = Google plugin for node geo location
+package = Node geo location
+dependencies[] = geonode
+core = 6.x

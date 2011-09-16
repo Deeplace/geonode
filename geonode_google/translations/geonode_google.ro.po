@@ -1,0 +1,76 @@
+# $Id$
+#
+# Romanian translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  geonode_google.module: n/a
+#  geonode_google.info: n/a
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2011-09-16 10:27+0300\n"
+"PO-Revision-Date: 2011-09-16 13:38+0200\n"
+"Last-Translator: \n"
+"Language-Team: Romanian <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+
+#: geonode_google.module:24
+msgid "Google Maps API key"
+msgstr "Cheile Google Maps API"
+
+#: geonode_google.module:30
+msgid "Map type"
+msgstr "Tipul hartei"
+
+#: geonode_google.module:33
+msgid "Normal"
+msgstr "Normal"
+
+#: geonode_google.module:34
+msgid "Satellite"
+msgstr "Satelit"
+
+#: geonode_google.module:35
+msgid "Hybryd"
+msgstr "Hibrid"
+
+#: geonode_google.module:36
+msgid "Physical"
+msgstr "Fizică"
+
+#: geonode_google.module:37
+msgid "Aerial"
+msgstr "Aerian"
+
+#: geonode_google.module:43
+msgid "Default zoom"
+msgstr "Mărimea implicită"
+
+#: geonode_google.module:49
+msgid "Enable Aerial Perspective Imagery"
+msgstr "Activează imaginea aeriană în perspectivă"
+
+#: geonode_google.module:51
+msgid "The Google Maps API supports special 45° imagery for certain locations. This high-resolution imagery provides perspective views towards each of the cardinal direction (North, South, East, West). Works only with the Aerial map."
+msgstr "Google Maps API permite vizualizarea în perspectivă a unor localităţi sub un unghi de 45°. Această vizualizare de rezoluţie înaltă oferă vederi perspective în orice direcţie cardinală (Nord, Sud, Est, Vest). Lucrează doar cu harta aeriană"
+
+#: geonode_google.module:56
+msgid "Imagery angle (°)"
+msgstr "Unghiul vederii (°)"
+
+#: geonode_google.info:0
+msgid "Google plugin"
+msgstr "Plugin Google"
+
+#: geonode_google.info:0
+msgid "Google plugin for node geo location"
+msgstr "Plugin Google pentru nod geo-locaţie"
+
+#: geonode_google.info:0
+msgid "Node geo location"
+msgstr "Nod geo-locaţie"
+
