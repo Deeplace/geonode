@@ -112,6 +112,7 @@ $(document).ready(initialize);", 'inline');
       foreach ($markers as $nid => $marker) {
         $lat = $marker['latitude'];
         $lon = $marker['longitude'];
+        $marker['title'] = str_replace ("'", "\'", $marker['title']);
         $script .= "  var marker_{$nid} = new GMarker(new GLatLng({$marker['latitude']}, {$marker['longitude']}), {});
   GEvent.addListener(marker_{$nid}, 'click', function() { marker_{$nid}.openInfoWindowHtml('{$marker['title']}'); });
   map.addOverlay(marker_{$nid});\n\n";

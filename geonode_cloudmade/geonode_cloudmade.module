@@ -80,6 +80,7 @@ function geonode_cloudmade_geonode_plugin() {
   var cloudmade = new CM.Tiles.CloudMade.Web({key: '8ee2a50541944fb9bcedded5165f09d9'});
   var map = new CM.Map('cloudmap-container', cloudmade);\n\n";
       foreach ($markers as $nid => $marker) {
+        $marker['title'] = str_replace ("'", "\'", $marker['title']);
         $script .= "  var cm_location_{$nid} = new CM.LatLng({$marker['latitude']}, {$marker['longitude']});
   var cm_marker_{$nid} = new CM.Marker(cm_location_{$nid}, {title:'{$marker['title']}'});
   map.setCenter(cm_location_{$nid}, 10);
