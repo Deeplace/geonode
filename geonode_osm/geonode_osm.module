@@ -38,12 +38,12 @@ function geonode_osm_geonode_plugin() {
     case 'location':
       $lat = array_shift($args);
       $lon = array_shift($args);
-      drupal_set_html_head('<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />');
-      drupal_set_html_head('<meta name="apple-mobile-web-app-capable" content="yes" />');
-      drupal_set_html_head('<link rel="stylesheet" href="http://openlayers.org/dev/theme/default/style.css" type="text/css">');
-      drupal_set_html_head('<link rel="stylesheet" href="http://openlayers.org/dev/theme/default/google.css" type="text/css">');
-      drupal_set_html_head('<script type="text/javascript" src="http://openlayers.org/dev/OpenLayers.js"></script>');
-      drupal_set_html_head('<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>');
+      drupal_add_html_head(array('#tag' => 'meta', '#attributes' => array('name' => 'viewport', 'content' => 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0')), 'viewport');
+      drupal_add_html_head(array('#tag' => 'meta', '#attributes' => array('name' => 'apple-mobile-web-app-capable', 'content' => 'yes')), 'apple');
+      drupal_add_html_head(array('#tag' => 'link', '#attributes' => array('rel' => 'stylesheet', 'href' => 'http://openlayers.org/dev/theme/default/style.css', 'type' => 'text/css')), 'style');
+      drupal_add_html_head(array('#tag' => 'link', '#attributes' => array('rel' => 'stylesheet', 'href' => 'http://openlayers.org/dev/theme/default/google.css', 'type' => 'text/css')), 'google_style');
+      drupal_add_html_head(array('#tag' => 'script', '#attributes' => array('type' => 'text/javascript', 'src' => 'http://openlayers.org/dev/OpenLayers.js')), 'open_layer');
+      drupal_add_html_head(array('#tag' => 'script', '#attributes' => array('type' => 'text/javascript', 'src' => 'http://maps.googleapis.com/maps/api/js?sensor=false')), 'googleapi');
       drupal_add_js("function set_location(loc, map) { loc=loc.transform(map.getProjectionObject(), new OpenLayers.Projection('EPSG:4326'));$('#edit-lat').val(loc.lat);$('#edit-lon').val(loc.lon); }
 function transform_lonlat(lon, lat){return new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection('EPSG:4326'),map.getProjectionObject());}
 function initialize() {
@@ -82,12 +82,12 @@ $(document).ready(initialize);", 'inline');
     case 'render':
       $markers = array_shift($args);
       $lat = $lon = 0;
-      drupal_set_html_head('<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />');
-      drupal_set_html_head('<meta name="apple-mobile-web-app-capable" content="yes" />');
-      drupal_set_html_head('<link rel="stylesheet" href="http://openlayers.org/dev/theme/default/style.css" type="text/css">');
-      drupal_set_html_head('<link rel="stylesheet" href="http://openlayers.org/dev/theme/default/google.css" type="text/css">');
-      drupal_set_html_head('<script type="text/javascript" src="http://openlayers.org/dev/OpenLayers.js"></script>');
-      drupal_set_html_head('<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>');
+      drupal_add_html_head(array('#tag' => 'meta', '#attributes' => array('name' => 'viewport', 'content' => 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0')), 'viewport');
+      drupal_add_html_head(array('#tag' => 'meta', '#attributes' => array('name' => 'apple-mobile-web-app-capable', 'content' => 'yes')), 'apple');
+      drupal_add_html_head(array('#tag' => 'link', '#attributes' => array('rel' => 'stylesheet', 'href' => 'http://openlayers.org/dev/theme/default/style.css', 'type' => 'text/css')), 'style');
+      drupal_add_html_head(array('#tag' => 'link', '#attributes' => array('rel' => 'stylesheet', 'href' => 'http://openlayers.org/dev/theme/default/google.css', 'type' => 'text/css')), 'google_style');
+      drupal_add_html_head(array('#tag' => 'script', '#attributes' => array('type' => 'text/javascript', 'src' => 'http://openlayers.org/dev/OpenLayers.js')), 'open_layer');
+      drupal_add_html_head(array('#tag' => 'script', '#attributes' => array('type' => 'text/javascript', 'src' => 'http://maps.googleapis.com/maps/api/js?sensor=false')), 'googleapi');
       $script = "function transform_lonlat(lon, lat){return new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection('EPSG:4326'),map.getProjectionObject());}
 function initialize() {
   map = new OpenLayers.Map({div:'osm-container',allOverlays:true});

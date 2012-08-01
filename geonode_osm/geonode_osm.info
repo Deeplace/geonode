@@ -2,4 +2,4 @@ name = OpenStreetMap plugin
 description = OpenStreetMap plugin for node geo location
 package = Node geo location
 dependencies[] = geonode
-core = 6.x
+core = 7.x

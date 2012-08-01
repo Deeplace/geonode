@@ -52,7 +52,7 @@ function geonode_cloudmade_geonode_plugin() {
     case 'location':
       $lat = array_shift($args);
       $lon = array_shift($args);
-      drupal_set_html_head('<script type="text/javascript" src="http://tile.cloudmade.com/wml/0.4/web-maps-lite.js"></script>');
+      drupal_add_html_head(array('#tag' => 'script', '#attributes' => array('type' => 'text/javascript', 'src' => 'http://tile.cloudmade.com/wml/0.4/web-maps-lite.js')), 'web_maps_lite');
       $script = "function initialize() {
   var cloudmade = new CM.Tiles.CloudMade.Web({key: '8ee2a50541944fb9bcedded5165f09d9'});
   var map = new CM.Map('cloudmap-container', cloudmade);
@@ -75,7 +75,7 @@ function geonode_cloudmade_geonode_plugin() {
 
     case 'render':
       $markers = array_shift($args);
-      drupal_set_html_head('<script type="text/javascript" src="http://tile.cloudmade.com/wml/0.4/web-maps-lite.js"></script>');
+      drupal_add_html_head(array('#tag' => 'script', '#attributes' => array('type' => 'text/javascript', 'src' => 'http://tile.cloudmade.com/wml/0.4/web-maps-lite.js')),'web_maps_lite');
       $script = "function initialize() {
   var cloudmade = new CM.Tiles.CloudMade.Web({key: '8ee2a50541944fb9bcedded5165f09d9'});
   var map = new CM.Map('cloudmap-container', cloudmade);\n\n";

@@ -25,11 +25,13 @@ function geonode_admin_settings() {
   foreach ($tnodes as $type) {
     $nodes[$type] = $type;
   }
+  
   $form['node_types'] = array(
+  '#title_display' => 'before',
     '#type' => 'checkboxes',
     '#title' => t('Content types'),
     '#default_value' => $nodes,
-    '#options' => array_map('check_plain', node_get_types('names')),
+    '#options' => array_map('check_plain', node_type_get_names()),
     '#description' => t('Select content types to use the node geo location.'),
   );
 

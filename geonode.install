@@ -30,17 +30,3 @@ function geonode_schema() {
 	);
 	return $schema;
 }
-
-/**
- * Implementation of hook_install().
- */
-function geonode_install() {
-  drupal_install_schema('geonode');
-}
-
-/**
- * Implementation of hook_uninstall().
- */
-function geonode_uninstall() {
-  drupal_uninstall_schema('geonode');
-}

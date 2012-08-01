@@ -74,10 +74,10 @@ function geonode_google_geonode_plugin() {
     case 'location':
       $lat = array_shift($args);
       $lon = array_shift($args);
-      drupal_set_html_head('<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />');
-      drupal_set_html_head('<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>');
-      drupal_set_html_head('<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key='.variable_get('geonode_google_key', '').'" type="text/javascript"></script>');
-      drupal_add_js("function set_location(loc) { $('#edit-lat').val(loc.lat());$('#edit-lon').val(loc.lng()); }
+      drupal_add_html_head(array('#tag' => 'meta', '#attributes' => array('name' => 'viewport', 'content' => 'initial-scale=1.0, user-scalable=no')), 'viewport');
+      drupal_add_html_head(array('#tag' => 'script', '#attributes' => array('type' => 'text/javascript', 'src' => 'http://maps.googleapis.com/maps/api/js?sensor=false')), 'map_api_js');
+      drupal_add_html_head(array('#tag' => 'script', '#attributes' => array('type' => 'text/javascript', 'src' => 'http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key=' . variable_get('geonode_google_key', ''))), 'geo_js');
+      drupal_add_js("function set_location(loc) { jQuery('#edit-lat').val(loc.lat());jQuery('#edit-lon').val(loc.lng()); }
 function initialize() {
   var map = new GMap2(document.getElementById('google-container'));
   map.setCenter(new GLatLng({$lat}, {$lon}), ".variable_get('geonode_google_zoom', 10).");
@@ -93,7 +93,7 @@ function initialize() {
   ".(variable_get('geonode_google_imagery', 0)?"map.enableRotation();\n  map.changeHeading(".variable_get('geonode_google_imagery_angle', 45).");":'')."
   map.setUIToDefault();
 }
-$(document).ready(initialize);", 'inline');
+jQuery(document).ready(initialize);", 'inline');
 
       $output = '<div id="google-container" style="height:400px;position:relative;width:100%;margin:0 0 10px 0;"></div>';
       return $output;
@@ -102,9 +102,9 @@ $(document).ready(initialize);", 'inline');
     case 'render':
       $markers = array_shift($args);
       $lat = $lon = 0;
-      drupal_set_html_head('<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />');
-      drupal_set_html_head('<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>');
-      drupal_set_html_head('<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key='.variable_get('geonode_google_key', '').'" type="text/javascript"></script>');
+      drupal_add_html_head(array('#tag' => 'meta', '#attributes' => array('name' => 'viewport', 'content' => 'initial-scale=1.0, user-scalable=no')), 'viewport');
+      drupal_add_html_head(array('#tag' => 'script', '#attributes' => array('type' => 'text/javascript', 'src' => 'http://maps.googleapis.com/maps/api/js?sensor=false')), 'map_api_js');
+      drupal_add_html_head(array('#tag' => 'script', '#attributes' => array('type' => 'text/javascript', 'src' => 'http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key=' . variable_get('geonode_google_key', ''))), 'geo_js');
       $script = "function initialize() {
   var map = new GMap2(document.getElementById('google-container'));
   map.setMapType(".variable_get('geonode_google_map_type', 'G_NORMAL_MAP').");\n\n";
@@ -122,7 +122,7 @@ $(document).ready(initialize);", 'inline');
   ".(variable_get('geonode_google_imagery', 0)?"map.enableRotation();\n  map.changeHeading(".variable_get('geonode_google_imagery_angle', 45).");":'')."
   map.setUIToDefault();
 }
-$(document).ready(initialize);";
+jQuery(document).ready(initialize);";
       drupal_add_js($script, 'inline');
 
       $output = '<div id="google-container" style="height:400px;position:relative;width:100%;margin:0 0 10px 0;"></div>';

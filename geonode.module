@@ -8,15 +8,20 @@ function geonode_init() {
   if (variable_get('node_admin_theme', '0') && arg(0) == 'node' && arg(2) == 'geo') {
     global $custom_theme;
     $custom_theme = variable_get('admin_theme', '0');
-    drupal_add_css(drupal_get_path('module', 'system') . '/admin.css', 'module');
+    drupal_add_css(drupal_get_path('module', 'system') . '/system.admin.css', 'module');
   }
 }
 
 /**
- * Implementation of hook_perm().
+ * Implementation of hook_permission().
  */
-function geonode_perm() {
-  return array('administer node geo location', 'administer node geo location settings');
+function geonode_permission() {
+  return array(
+    'administer node geo location'=> array(
+      'title' => t('Administer geo location nodes')),
+     'administer node geo location settings'=> array(
+      'title' => t('Administer geo location node settings'))
+  );
 }
 
 /**
@@ -49,7 +54,7 @@ function geonode_menu() {
     'title' => 'Node geo location',
     'description' => 'Configure node geo location settings.',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('geonode_admin_settings'),
+  'page arguments' => array('geonode_admin_settings'),
     'access arguments' => array('administer node geo location settings'),
     'file' => 'geonode.admin.inc',
   );
@@ -72,27 +77,44 @@ function geonode_menu() {
   return $items;
 }
 
-/*
- * Implementation of hook_nodeapi().
+/**
+ * Implementation of hook_node_load()
  */
-function geonode_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
-  switch ($op) {
-    case 'load':
-      $location = db_fetch_array(db_query("SELECT lat, lon FROM {node_location} WHERE nid = %d", $node->nid));
-      if (!$location) $location = array('lat' => '47.031768087892', 'lon' => '28.848643898973');
-      return $location;
-      break;
-
-    case 'delete':
-      db_query("DELETE FROM {node_location} WHERE nid = %d", $node->nid);
-      break;
-  }
+function geonode_node_load($nodes, $types) {
+	foreach ($nodes as &$node) {
+	  $geo_types = explode('|', variable_get('geonode_node_types', 'page'));
+	  if (!in_array($node->type, $geo_types)) {
+	    continue;
+	  }
+	  $query = db_select('node_location', 'nl');
+	  $query->fields('nl', array('lat', 'lon'));
+	  $query->condition('nl.nid', $node->nid);
+	  $location = $query->execute()->fetchAssoc();
+	  if ($location) {
+	    $node->lat = $location->lat;
+	    $node->lon = $location->lon;
+	  }
+	  else {
+	    $node->lat = '47.031768087892';
+	    $node->lon = '28.848643898973';
+	  }
+	}
 }
+
+/**
+ * Implementation of hook_node_delete()
+ */
+function geonode_node_delete($node) {
+ db_delete('node_location')
+    ->condition('nid', $node->nid)
+    ->execute();
+}
+
 
 /**
  * Menu callback: administer node geo location form
  */
-function geonode_form(&$form_state, $node) {
+function geonode_form($form, &$form_state, $node) {
   $form = array();
 
   $types = explode('|', variable_get('geonode_node_types', 'page'));
@@ -101,16 +123,25 @@ function geonode_form(&$form_state, $node) {
     return $form;
   }
 
+  $type = node_type_get_type($node);
+  $form['title'] = array(
+    '#type' => 'textfield', 
+    '#title' => check_plain($type->title_label), 
+    '#default_value' => !empty($node->title) ? $node->title : '', 
+    '#required' => TRUE, 
+    '#weight' => -5,
+  );
+
   $plugin = variable_get('geonode_plugin', '');
   $map = module_invoke("geonode_{$plugin}", 'geonode_plugin', 'location', $node->lat, $node->lon);
-
+ 
   $form['map'] = array('#value' => $map);
 
   $form['lat'] = array(
     '#type' => 'hidden',
     '#default_value' => $node->lat
   );
-
+  
   $form['lon'] = array(
     '#type' => 'hidden',
     '#default_value' => $node->lon
@@ -134,8 +165,39 @@ function geonode_form(&$form_state, $node) {
  */
 function geonode_form_submit(&$form, &$form_state) {
   $values = $form_state['values'];
-  if (db_result(db_query("SELECT COUNT(nid) FROM {node_location} WHERE nid=%d", $values['nid']))) $script = "UPDATE {node_location} SET lat='%s', lon='%s' WHERE nid=%d";
-  else $script = "INSERT INTO {node_location} SET lat='%s', lon='%s', nid=%d";
-  db_query($script, $values['lat'], $values['lon'], $values['nid']);
-  drupal_set_message(t('The location has been saved.'));
+  $query = db_select('node_location', 'nl');
+  $query->fields('nl', array('nid'));
+  $query->condition('nl.nid', $values['nid']);
+  $locations = $query->execute();
+  
+  
+  if ($locations->rowCount()) {
+	  $result = db_update('node_location')
+		  ->fields(
+				  array(
+				    'lat' => round($values['lat'], 12),
+				    'lon' => round($values['lon'], 12),
+				  )
+			  )
+		  ->condition('nid', $values['nid'])
+		  ->execute();
+  }
+  else {
+    $result = db_insert('node_location')
+      ->fields(
+	        array(
+	          'nid' => $values['nid'],
+	          'lat' => round($values['lat'], 12),
+            'lon' => round($values['lon'], 12),
+	        )
+        )
+      ->execute();
+  }
+  
+  if ($result) {
+    drupal_set_message(t('The location has been saved.'));
+  }
+  else {
+    drupal_set_message(t('The location has not been saved.'), 'error');
+  }
 }
