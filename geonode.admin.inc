@@ -3,7 +3,7 @@
 /**
  * Form builder function for module settings.
  */
-function geonode_admin_settings() {
+function geonode_admin_settings($form, &$form_state) {
   $form = array();
 
   $plugins = array('<none>');
@@ -58,18 +58,23 @@ function geonode_admin_settings_submit(&$form, &$form_state) {
 }
 
 /**
- * Form builder function for plaugin settings.
+ * Form builder function for plugin settings.
  */
-function geonode_admin_plugin_settings() {
+function geonode_admin_plugin_settings($form, &$form_state) {
+  $form = array();
   $plugin = variable_get('geonode_plugin', '');
   if (!$plugin) {
-    $form['error'] = array('#value' => t('The plugin cannot be configured. Please visit this <a href="!url">page</a> and select the plugin.', array('!url' => url('admin/settings/geonode'))));
+    $form['error'] = array('#markup' => t('The plugin cannot be configured. Please visit this <a href="!url">page</a> and select the plugin.', array('!url' => url('admin/settings/geonode'))));
     return $form;
   }
 
   $form = module_invoke("geonode_{$plugin}", 'geonode_plugin', 'settings_form');
-  if (!$form) $form = array('empty' => array('#value' => t('The selected plugin has no settings')));
-  elseif (!$form['submit']) $form['submit'] = array('#type' => 'submit', '#value' => t('Save'));
+  if (!$form) {
+    $form = array('empty' => array('#markup' => t('The selected plugin has no settings')));
+  }
+  elseif (!array_key_exists('submit', $form)) {
+      $form['submit'] = array('#type' => 'submit', '#value' => t('Save'));
+  } 
   return $form;
 }
 

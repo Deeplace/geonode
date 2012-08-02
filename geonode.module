@@ -54,7 +54,7 @@ function geonode_menu() {
     'title' => 'Node geo location',
     'description' => 'Configure node geo location settings.',
     'page callback' => 'drupal_get_form',
-  'page arguments' => array('geonode_admin_settings'),
+    'page arguments' => array('geonode_admin_settings'),
     'access arguments' => array('administer node geo location settings'),
     'file' => 'geonode.admin.inc',
   );
@@ -89,7 +89,7 @@ function geonode_node_load($nodes, $types) {
 	  $query = db_select('node_location', 'nl');
 	  $query->fields('nl', array('lat', 'lon'));
 	  $query->condition('nl.nid', $node->nid);
-	  $location = $query->execute()->fetchAssoc();
+	  $location = $query->execute()->fetch();
 	  if ($location) {
 	    $node->lat = $location->lat;
 	    $node->lon = $location->lon;
@@ -134,8 +134,10 @@ function geonode_form($form, &$form_state, $node) {
 
   $plugin = variable_get('geonode_plugin', '');
   $map = module_invoke("geonode_{$plugin}", 'geonode_plugin', 'location', $node->lat, $node->lon);
- 
-  $form['map'] = array('#value' => $map);
+
+  $form['map'] = array(
+	  '#markup' => $map
+  );
 
   $form['lat'] = array(
     '#type' => 'hidden',

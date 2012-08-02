@@ -74,17 +74,16 @@ function geonode_google_geonode_plugin() {
     case 'location':
       $lat = array_shift($args);
       $lon = array_shift($args);
-      drupal_add_html_head(array('#tag' => 'meta', '#attributes' => array('name' => 'viewport', 'content' => 'initial-scale=1.0, user-scalable=no')), 'viewport');
+      //drupal_add_html_head(array('#tag' => 'meta', '#attributes' => array('name' => 'viewport', 'content' => 'initial-scale=1.0, user-scalable=no')), 'viewport');
       drupal_add_html_head(array('#tag' => 'script', '#attributes' => array('type' => 'text/javascript', 'src' => 'http://maps.googleapis.com/maps/api/js?sensor=false')), 'map_api_js');
-      drupal_add_html_head(array('#tag' => 'script', '#attributes' => array('type' => 'text/javascript', 'src' => 'http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key=' . variable_get('geonode_google_key', ''))), 'geo_js');
-      drupal_add_js("function set_location(loc) { jQuery('#edit-lat').val(loc.lat());jQuery('#edit-lon').val(loc.lng()); }
+      drupal_add_html_head(array('#tag' => 'script', '#attributes' => array('type' => 'text/javascript', 'src' => 'http://maps.google.com/maps?file=api&v=2&sensor=false&key=' . variable_get('geonode_google_key', ''))), 'geo_js');
+      drupal_add_js("function set_location(loc) { jQuery('input[name=\"lat\"]').val(loc.lat());jQuery('input[name=\"lon\"]').val(loc.lng()); }
 function initialize() {
   var map = new GMap2(document.getElementById('google-container'));
   map.setCenter(new GLatLng({$lat}, {$lon}), ".variable_get('geonode_google_zoom', 10).");
   map.setMapType(".variable_get('geonode_google_map_type', 'G_NORMAL_MAP').");
 
   var marker = new GMarker(new GLatLng({$lat}, {$lon}), {draggable:true});
-  //GEvent.addListener(marker, 'click', function() { marker.openInfoWindowHtml('SpravkaWeb.Ru - Справочник Web-языков'); });
   GEvent.addListener(marker, 'dragend', set_location);
   map.addOverlay(marker);
 
@@ -95,16 +94,16 @@ function initialize() {
 }
 jQuery(document).ready(initialize);", 'inline');
 
-      $output = '<div id="google-container" style="height:400px;position:relative;width:100%;margin:0 0 10px 0;"></div>';
+      $output = '<div id="google-container" style="height:400px;position:relative;width:100%;margin:0px;"></div>';
       return $output;
       break;
 
     case 'render':
       $markers = array_shift($args);
       $lat = $lon = 0;
-      drupal_add_html_head(array('#tag' => 'meta', '#attributes' => array('name' => 'viewport', 'content' => 'initial-scale=1.0, user-scalable=no')), 'viewport');
+      //drupal_add_html_head(array('#tag' => 'meta', '#attributes' => array('name' => 'viewport', 'content' => 'initial-scale=1.0, user-scalable=no')), 'viewport');
       drupal_add_html_head(array('#tag' => 'script', '#attributes' => array('type' => 'text/javascript', 'src' => 'http://maps.googleapis.com/maps/api/js?sensor=false')), 'map_api_js');
-      drupal_add_html_head(array('#tag' => 'script', '#attributes' => array('type' => 'text/javascript', 'src' => 'http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key=' . variable_get('geonode_google_key', ''))), 'geo_js');
+      drupal_add_html_head(array('#tag' => 'script', '#attributes' => array('type' => 'text/javascript', 'src' => 'http://maps.google.com/maps?file=api&v=2&sensor=false&key=' . variable_get('geonode_google_key', ''))), 'geo_js');
       $script = "function initialize() {
   var map = new GMap2(document.getElementById('google-container'));
   map.setMapType(".variable_get('geonode_google_map_type', 'G_NORMAL_MAP').");\n\n";
@@ -125,7 +124,7 @@ jQuery(document).ready(initialize);", 'inline');
 jQuery(document).ready(initialize);";
       drupal_add_js($script, 'inline');
 
-      $output = '<div id="google-container" style="height:400px;position:relative;width:100%;margin:0 0 10px 0;"></div>';
+      $output = '<div id="google-container" style="height:400px;position:relative;width:100%;margin:0px;"></div>';
       return $output;
       break;
   }

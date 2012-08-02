@@ -61,12 +61,12 @@ function geonode_cloudmade_geonode_plugin() {
   var cm_marker = new CM.Marker(cm_location, {draggable:true});
   map.setCenter(cm_location, 10);
   map.addOverlay(cm_marker);
-  function set_location(loc) {cm_marker.setLatLng(loc);$('#edit-lat').val(loc.lat());$('#edit-lon').val(loc.lng());}
+  function set_location(loc) {cm_marker.setLatLng(loc);jQuery('#edit-lat').val(loc.lat());jQuery('#edit-lon').val(loc.lng());}
   CM.Event.addListener(map, 'click', set_location);\n\n";
       if (variable_get('geonode_cloudmade_map_control', 1)) $script .= "  map.addControl(new CM.LargeMapControl());\n";
       if (variable_get('geonode_cloudmade_scale_control', 0)) $script .= "  map.addControl(new CM.ScaleControl());\n";
       if (variable_get('geonode_cloudmade_overview_control', 1)) $script .= "  map.addControl(new CM.OverviewMapControl());\n";
-      $script .= "}\n$(document).ready(initialize);";
+      $script .= "}\njQuery(document).ready(initialize);";
       drupal_add_js($script, 'inline');
 
       $output = '<div id="cloudmap-container" style="height:400px;position:relative;width:100%;margin:0 0 10px 0;"></div>';
@@ -89,7 +89,7 @@ function geonode_cloudmade_geonode_plugin() {
       if (variable_get('geonode_cloudmade_map_control', 1)) $script .= "  map.addControl(new CM.LargeMapControl());\n";
       if (variable_get('geonode_cloudmade_scale_control', 0)) $script .= "  map.addControl(new CM.ScaleControl());\n";
       if (variable_get('geonode_cloudmade_overview_control', 1)) $script .= "  map.addControl(new CM.OverviewMapControl());\n";
-      $script .= "}\n$(document).ready(initialize);";
+      $script .= "}\njQuery(document).ready(initialize);";
       drupal_add_js($script, 'inline');
 
       $output = '<div id="cloudmap-container" style="height:400px;position:relative;width:100%;margin:0 0 10px 0;"></div>';
