@@ -81,24 +81,24 @@ function geonode_menu() {
  * Implementation of hook_node_load()
  */
 function geonode_node_load($nodes, $types) {
-	foreach ($nodes as &$node) {
-	  $geo_types = explode('|', variable_get('geonode_node_types', 'page'));
-	  if (!in_array($node->type, $geo_types)) {
-	    continue;
-	  }
-	  $query = db_select('node_location', 'nl');
-	  $query->fields('nl', array('lat', 'lon'));
-	  $query->condition('nl.nid', $node->nid);
-	  $location = $query->execute()->fetch();
-	  if ($location) {
-	    $node->lat = $location->lat;
-	    $node->lon = $location->lon;
-	  }
-	  else {
-	    $node->lat = '47.031768087892';
-	    $node->lon = '28.848643898973';
-	  }
-	}
+  foreach ($nodes as &$node) {
+    $geo_types = explode('|', variable_get('geonode_node_types', 'page'));
+    if (!in_array($node->type, $geo_types)) {
+      continue;
+    }
+    $query = db_select('node_location', 'nl');
+    $query->fields('nl', array('lat', 'lon'));
+    $query->condition('nl.nid', $node->nid);
+    $location = $query->execute()->fetch();
+    if ($location) {
+      $node->lat = $location->lat;
+      $node->lon = $location->lon;
+    }
+    else {
+      $node->lat = '47.031768087892';
+      $node->lon = '28.848643898973';
+    }
+  }
 }
 
 /**
@@ -125,25 +125,30 @@ function geonode_form($form, &$form_state, $node) {
 
   $type = node_type_get_type($node);
   $form['title'] = array(
-    '#type' => 'textfield', 
-    '#title' => check_plain($type->title_label), 
-    '#default_value' => !empty($node->title) ? $node->title : '', 
-    '#required' => TRUE, 
+    '#type' => 'textfield',
+    '#title' => check_plain($type->title_label),
+    '#default_value' => !empty($node->title) ? $node->title : '',
+    '#required' => TRUE,
     '#weight' => -5,
   );
 
+  if (!isset($node->lat) && !isset($node->lon)) {
+    $nodes = array($node);
+    $types = array($type->type);
+    geonode_node_load($nodes, $types);
+  }
   $plugin = variable_get('geonode_plugin', '');
   $map = module_invoke("geonode_{$plugin}", 'geonode_plugin', 'location', $node->lat, $node->lon);
 
   $form['map'] = array(
-	  '#markup' => $map
+    '#markup' => $map
   );
 
   $form['lat'] = array(
     '#type' => 'hidden',
     '#default_value' => $node->lat
   );
-  
+
   $form['lon'] = array(
     '#type' => 'hidden',
     '#default_value' => $node->lon
@@ -171,8 +176,8 @@ function geonode_form_submit(&$form, &$form_state) {
   $query->fields('nl', array('nid'));
   $query->condition('nl.nid', $values['nid']);
   $locations = $query->execute();
-  
-  
+
+
   if ($locations->rowCount()) {
 	  $result = db_update('node_location')
 		  ->fields(
@@ -195,7 +200,7 @@ function geonode_form_submit(&$form, &$form_state) {
         )
       ->execute();
   }
-  
+
   if ($result) {
     drupal_set_message(t('The location has been saved.'));
   }
