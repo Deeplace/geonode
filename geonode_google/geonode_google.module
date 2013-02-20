@@ -75,8 +75,12 @@ function geonode_google_geonode_plugin() {
       $lat = array_shift($args);
       $lon = array_shift($args);
       //drupal_add_html_head(array('#tag' => 'meta', '#attributes' => array('name' => 'viewport', 'content' => 'initial-scale=1.0, user-scalable=no')), 'viewport');
-      drupal_add_html_head(array('#tag' => 'script', '#attributes' => array('type' => 'text/javascript', 'src' => 'http://maps.googleapis.com/maps/api/js?sensor=false')), 'map_api_js');
-      drupal_add_html_head(array('#tag' => 'script', '#attributes' => array('type' => 'text/javascript', 'src' => 'http://maps.google.com/maps?file=api&v=2&sensor=false&key=' . variable_get('geonode_google_key', ''))), 'geo_js');
+      //drupal_add_html_head(array('#tag' => 'script', '#attributes' => array('type' => 'text/javascript', 'src' => 'http://maps.googleapis.com/maps/api/js?sensor=false')), 'map_api_js');
+      //drupal_add_html_head(array('#tag' => 'script', '#attributes' => array('type' => 'text/javascript', 'src' => 'http://maps.google.com/maps?file=api&v=2&sensor=false&key=' . variable_get('geonode_google_key', ''))), 'geo_js');
+
+      drupal_add_js('http://maps.googleapis.com/maps/api/js?sensor=false', 'external');
+      drupal_add_js('http://maps.google.com/maps?file=api&v=2&sensor=false&key=' . variable_get('geonode_google_key', ''), 'external');
+
       drupal_add_js("function set_location(loc) { jQuery('input[name=\"lat\"]').val(loc.lat());jQuery('input[name=\"lon\"]').val(loc.lng()); }
 function initialize() {
   var map = new GMap2(document.getElementById('google-container'));

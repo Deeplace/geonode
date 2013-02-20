@@ -177,9 +177,8 @@ function geonode_form_submit(&$form, &$form_state) {
   $query->condition('nl.nid', $values['nid']);
   $locations = $query->execute();
 
-
   if ($locations->rowCount()) {
-	  $result = db_update('node_location')
+	  db_update('node_location')
 		  ->fields(
 				  array(
 				    'lat' => round($values['lat'], 12),
@@ -190,7 +189,7 @@ function geonode_form_submit(&$form, &$form_state) {
 		  ->execute();
   }
   else {
-    $result = db_insert('node_location')
+    db_insert('node_location')
       ->fields(
 	        array(
 	          'nid' => $values['nid'],
@@ -200,11 +199,5 @@ function geonode_form_submit(&$form, &$form_state) {
         )
       ->execute();
   }
-
-  if ($result) {
     drupal_set_message(t('The location has been saved.'));
-  }
-  else {
-    drupal_set_message(t('The location has not been saved.'), 'error');
-  }
 }
