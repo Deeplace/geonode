@@ -1,0 +1,197 @@
+<?php
+
+/**
+ * Implementation of hook_geonode_plugin().
+ */
+function geonode_leaflet_geonode_plugin() {
+  $args = func_get_args();
+  $op = array_shift($args);
+
+  switch ($op) {
+    case 'name':
+      return 'leaflet';
+      break;
+
+    case 'title':
+      return 'Leaflet';
+      break;
+
+    case 'settings_form':
+      $form = array();
+
+      $form['key'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Google Maps API key'),
+        '#default_value' => variable_get('geonode_leaflet_google_key', ''),
+      );
+
+      $form['zoom'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Default zoom'),
+        '#default_value' => variable_get('geonode_leaflet_zoom', 13),
+      );
+
+      $form['width'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Width'),
+        '#default_value' => variable_get('geonode_leaflet_width', '500px'),
+      );
+      $form['height'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Height'),
+        '#default_value' => variable_get('geonode_leaflet_height', '500px'),
+      );
+
+      return $form;
+      break;
+
+    case 'settings_form_submit':
+      $post = array_shift($args);
+      if ($post) {
+        variable_set('geonode_leaflet_google_key', $post['key']);
+        variable_set('geonode_leaflet_zoom', $post['zoom']);
+        variable_set('geonode_leaflet_width', $post['width']);
+        variable_set('geonode_leaflet_height', $post['height']);
+      }
+
+      break;
+
+    case 'location':
+      $lat = array_shift($args);
+      $lon = array_shift($args);
+      $zoom = variable_get('geonode_leaflet_zoom', 13);
+      $width = variable_get('geonode_leaflet_width', '500px');
+      $height = variable_get('geonode_leaflet_height', '500px');
+      drupal_add_html_head(array('#tag' => 'meta', '#attributes' => array('name' => 'viewport', 'content' => 'width=device-width, initial-scale=1.0')), 'viewport');
+
+      $path = drupal_get_path('module', 'geonode_leaflet');
+      drupal_add_css("{$path}/css/MarkerCluster.Default.css");
+      drupal_add_css("{$path}/css/MarkerCluster.css");
+      drupal_add_css('http://cdn.leafletjs.com/leaflet-0.4.5/leaflet.css', 'external');
+      drupal_add_css(
+        $path . '/css/MarkerCluster.Default.ie.css',
+        array(
+          'group' => CSS_THEME,
+          'browsers' => array(
+            'IE' => 'lte IE 8',
+            '!IE' => FALSE,
+          ),
+          'preprocess' => FALSE,
+        )
+      );
+
+      drupal_add_js('http://cdn.leafletjs.com/leaflet-0.4.5/leaflet.js', 'external');
+      drupal_add_js('http://maps.google.com/maps/api/js?v=3.2&sensor=false', 'external');
+      drupal_add_js('https://raw.github.com/gist/2197042/2b90c41b39b7d5b3a851d8f256de2ebd3fe1fb74/leaflet-google.js', 'external');
+      drupal_add_js("{$path}/js/leaflet.markercluster-src.js");
+
+      drupal_add_js(
+        "
+      function initialize() {
+
+	    latlng = new L.LatLng({$lat}, {$lon});
+		  var map = new L.Map('map', {center: latlng, zoom: {$zoom}});
+
+		 var googleLayer    = new L.Google('ROADMAP');
+         var cloudmadeLayer = new L.TileLayer('http://{s}.tile.cloudmade.com/a33ede6a9595478ba1025f20398c0341/998/256/{z}/{x}/{y}.png');
+         map.addLayer(googleLayer);
+         map.addControl(new L.Control.Layers({'Google': googleLayer, 'OSM':cloudmadeLayer}));
+
+         var markers = new L.MarkerClusterGroup();
+
+		 var marker = new L.Marker(new L.LatLng({$lat}, {$lon}), { draggable: true });
+		 marker.on({
+          dragend: onMarkerDragEnd
+        });
+
+		 markers.addLayer(marker);
+		 map.addLayer(markers);
+		function onMarkerDragEnd(e) {
+          set_location(e.target._latlng);
+		}
+
+		function set_location(loc) { jQuery('input[name=\"lat\"]').val(loc.lat);jQuery('input[name=\"lon\"]').val(loc.lng); }
+
+      }
+       jQuery(document).ready(initialize);
+
+        ",'inline');
+
+      $output = "<div style='width:{$width}; height:{$height}' id='map'></div>";
+      return $output;
+      break;
+
+    case 'render':
+      $markers = array_shift($args);
+      $lat = $lon = 0;
+      //drupal_add_html_head(array('#tag' => 'meta', '#attributes' => array('name' => 'viewport', 'content' => 'initial-scale=1.0, user-scalable=no')), 'viewport');
+
+
+      $zoom = variable_get('geonode_leaflet_zoom', 13);
+      $width = variable_get('geonode_leaflet_width', '500px');
+      $height = variable_get('geonode_leaflet_height', '500px');
+      drupal_add_html_head(array('#tag' => 'meta', '#attributes' => array('name' => 'viewport', 'content' => 'width=device-width, initial-scale=1.0')), 'viewport');
+
+      $path = drupal_get_path('module', 'geonode_leaflet');
+      drupal_add_css("{$path}/css/MarkerCluster.Default.css");
+      drupal_add_css("{$path}/css/MarkerCluster.css");
+      drupal_add_css('http://cdn.leafletjs.com/leaflet-0.4.5/leaflet.css', 'external');
+      drupal_add_css(
+        $path . '/css/MarkerCluster.Default.ie.css',
+        array(
+          'group' => CSS_THEME,
+          'browsers' => array(
+            'IE' => 'lte IE 8',
+            '!IE' => FALSE,
+          ),
+          'preprocess' => FALSE,
+        )
+      );
+
+      drupal_add_js('http://cdn.leafletjs.com/leaflet-0.4.5/leaflet.js', 'external');
+      drupal_add_js('http://maps.google.com/maps/api/js?v=3.2&sensor=false', 'external');
+      drupal_add_js('https://raw.github.com/gist/2197042/2b90c41b39b7d5b3a851d8f256de2ebd3fe1fb74/leaflet-google.js', 'external');
+      drupal_add_js("{$path}/js/leaflet.markercluster-src.js");
+
+
+      $script = "function initialize() {
+      latlng = new L.LatLng({$lat}, {$lon});
+		  var map = new L.Map('map', {zoom: {$zoom}});
+
+		 var googleLayer    = new L.Google('ROADMAP');
+         var cloudmadeLayer = new L.TileLayer('http://{s}.tile.cloudmade.com/a33ede6a9595478ba1025f20398c0341/998/256/{z}/{x}/{y}.png');
+         map.addLayer(googleLayer);
+         map.addControl(new L.Control.Layers({'Google': googleLayer, 'OSM':cloudmadeLayer}));
+
+         var markers = new L.MarkerClusterGroup();
+		 var markersList = [];
+  ";
+
+      $script .= "function create_markers(){ ";
+      foreach ($markers as $nid => $marker) {
+        $lat = $marker['latitude'];
+        $lon = $marker['longitude'];
+        $marker['title'] = str_replace ("'", "\'", $marker['title']);
+        $script .= "
+          var marker = new L.Marker(new L.LatLng({$lat}, {$lon}), { title: '{$marker['title']}' });
+			marker.bindPopup('{$marker['title']}');
+			markers.addLayer(marker);
+        ";
+      }
+      $script .= "}\n";
+
+      $script .= "create_markers();
+        map.addLayer(markers);
+        map.setView([{$lat}, {$lon}], {$zoom});
+        ";
+
+      $script .= ";
+}
+jQuery(document).ready(initialize);";
+      drupal_add_js($script, 'inline');
+
+      $output = "<div style='width:{$width}; height:{$height}' id='map'></div>";
+      return $output;
+      break;
+  }
+}

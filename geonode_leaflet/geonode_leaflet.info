@@ -1,0 +1,5 @@
+name = Leaflet plugin
+description = Leaflet plugin which integrate with Gmaps plugin for node geo location
+package = Node geo location
+dependencies[] = geonode
+core = 7.x
