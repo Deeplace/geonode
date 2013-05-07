@@ -3,3 +3,4 @@ description = Google plugin for node geo location
 package = Node geo location
 dependencies[] = geonode
 core = 7.x
+version = 7.x - 1.1
