@@ -75,7 +75,8 @@ function geonode_google_geonode_plugin() {
       $lon = array_shift($args);
       drupal_add_js('https://maps.googleapis.com/maps/api/js?v=3&key=' . variable_get('geonode_google_key', '') . '&sensor=false', 'external');
       drupal_add_js("
-      function set_location(loc) {
+      function set_location(event) {
+      var loc = event.latLng;
         jQuery('input[name=\"lat\"]').val(loc.lat());
         jQuery('input[name=\"lon\"]').val(loc.lng());
       }
