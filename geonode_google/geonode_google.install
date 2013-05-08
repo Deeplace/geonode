@@ -1,0 +1,6 @@
+<?php
+function geonode_google_update_6001() {
+  variable_del('geonode_google_map_type');
+  variable_del('geonode_google_key');
+  return array();
+}
