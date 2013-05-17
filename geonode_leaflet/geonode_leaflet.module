@@ -59,7 +59,14 @@ function geonode_leaflet_geonode_plugin() {
     case 'location':
       $lat = array_shift($args);
       $lon = array_shift($args);
-      $zoom = variable_get('geonode_leaflet_zoom', 13);
+      
+      if($lat == '47.031768087892' && $lon == '28.848643898973') {
+        $zoom = variable_get('geonode_leaflet_zoom', 13);
+      }
+      else {
+        $zoom = 15;
+      }
+
       $width = variable_get('geonode_leaflet_width', '500px');
       $height = variable_get('geonode_leaflet_height', '500px');
 
