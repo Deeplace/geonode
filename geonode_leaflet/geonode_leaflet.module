@@ -182,6 +182,7 @@ function geonode_leaflet_init_script() {
 
   drupal_add_js('http://cdn.leafletjs.com/leaflet-0.4.5/leaflet.js', 'external');
   drupal_add_js('http://maps.google.com/maps/api/js?v=3.2&sensor=false', 'external');
-  drupal_add_js('https://raw.github.com/gist/2197042/2b90c41b39b7d5b3a851d8f256de2ebd3fe1fb74/leaflet-google.js', 'external');
+  //drupal_add_js('https://raw.github.com/gist/2197042/2b90c41b39b7d5b3a851d8f256de2ebd3fe1fb74/leaflet-google.js', 'external');
+  drupal_add_js("$path/js/leaflet-google.js");
   drupal_add_js("{$path}/js/leaflet.markercluster-src.js");
 }
